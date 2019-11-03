@@ -1,1 +1,6 @@
 python >= 3.6
+numpy
+pandas
+sklearn
+git_root
+json
