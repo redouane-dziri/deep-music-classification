@@ -10,3 +10,5 @@
 - by 12/05: short presentation of what was accomplished and what’s left, start writing report
 - by 12/12: write text-part of the model, train it and combine both
 - by 12/20: finish report, demo, presentation
+
+## Checklist
