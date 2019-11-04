@@ -49,7 +49,7 @@ output_df = pd.DataFrame(output_dict)
 # WARNING: don't un-comment unless you want to change the whole train/test split 
 # irreversibly
 
-#output_df.to_csv(output, index=False)
+output_df.to_csv(output, index=False)
 
 # move the files now
 
@@ -73,12 +73,12 @@ def copy_file(row):
 # WARNING: don't un-comment unless you want to change the whole train/test split 
 # irreversibly
 
-#_ = output_df.apply(copy_file, axis=1)
+_ = output_df.apply(copy_file, axis=1)
 
 # clean up
 
 # WARNING: don't un-comment unless you want to change the whole train/test split 
 # irreversibly
 
-#for genre in config["genres"]:
-#    shutil.rmtree(os.path.join(data_path, genre))
+for genre in config["genres"]:
+    shutil.rmtree(os.path.join(data_path, genre))
