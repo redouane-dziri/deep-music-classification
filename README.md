@@ -1,8 +1,13 @@
 # Music Genre Classifcation using CNNs
 
+*Authors: Redouane Dziri, Arnaud Stiegler*
+
 Base paper: 	 [Local-feature-map Integration Using CNNs for Music Genre Classification](http://www.me.cs.scitec.kobe-u.ac.jp/~takigu/pdf/2012/1037_Paper.pdf)
 
 Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
+
+
+** This is an ongoing project **
 
 ## Timeline
 
