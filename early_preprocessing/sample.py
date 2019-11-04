@@ -17,14 +17,14 @@ train_test_split = pd.read_csv(
     os.path.join(data_root, "metadata", "train_test_split.csv")
 )
 
-def sample_8_2(block):
+def sample_18_2(block):
     sample_size = 2
     if block["split"].unique()[0] == "train":
-        sample_size = 8
+        sample_size = 18
     return block.sample(sample_size)
 
 samples = train_test_split.groupby(["genre", "split"]).\
-    apply(sample_8_2).\
+    apply(sample_18_2).\
     reset_index(drop=True)
 
 sample_data_path = git_root("data", "sample_data")
