@@ -20,6 +20,8 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 
 
+## Tips
+
 Before connecting to the Cloud Storage Bucket, make sure you set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to point to your Google Cloud credentials
 e.g.
 ```
