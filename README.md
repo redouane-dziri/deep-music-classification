@@ -7,7 +7,7 @@ Base paper: 	 [Local-feature-map Integration Using CNNs for Music Genre Classifi
 Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 
-** This is an ongoing project **
+**This is an ongoing project**
 
 ## Timeline
 
