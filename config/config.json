@@ -11,5 +11,5 @@
         "reggae", 
         "rock"
     ],
-    "train_percent": 80
+    "train_percent": 90
 }

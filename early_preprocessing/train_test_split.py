@@ -27,7 +27,7 @@ output_dict = {
 for genre in config["genres"]:
 
     all_indices = np.arange(0, 100)
-    test_indices = np.random.choice(all_indices, 20, replace=False)
+    test_indices = np.random.choice(all_indices, 10, replace=False)
     train_indices = np.delete(all_indices, test_indices)
 
     test_files = [
