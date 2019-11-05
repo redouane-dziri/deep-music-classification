@@ -21,11 +21,13 @@ train_test_split_path = os.path.join(
 
 train_test_split = pd.read_csv(train_test_split_path)
 
+random_state = 11
+
 def sample_18_2(block):
     sample_size = 2
     if block["split"].unique()[0] == "train":
         sample_size = 18
-    return block.sample(sample_size)
+    return block.sample(sample_size, random_state=random_state)
 
 samples = train_test_split.groupby(["genre", "split"]).\
     apply(sample_18_2).\
@@ -56,11 +58,11 @@ def copy_file(row):
 # WARNING: don't un-comment unless you want to change the whole samples 
 # irreversibly
 
-#_ = samples.apply(copy_file, axis=1)
+_ = samples.apply(copy_file, axis=1)
 
 # add sample information to train_test_split.csv 
 
-train_test_split = train_test_split.merge(
+train_test_split = train_test_split[["file_name", "genre", "split"]].merge(
     samples[["file_name"]], how="left", on="file_name", indicator="sample"
 )
 
@@ -71,4 +73,4 @@ train_test_split["sample"] = train_test_split["sample"].map(
 # WARNING: don't un-comment unless you want to change the whole samples 
 # irreversibly
 
-# train_test_split.to_csv(train_test_split_path)
+train_test_split.to_csv(train_test_split_path, index=False)

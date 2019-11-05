@@ -24,10 +24,13 @@ output_dict = {
     "split": [],
 }
 
+random_state = 11
+
 for genre in config["genres"]:
 
+    R = np.random.RandomState(random_state)
     all_indices = np.arange(0, 100)
-    test_indices = np.random.choice(all_indices, 10, replace=False)
+    test_indices = R.choice(all_indices, 10, replace=False)
     train_indices = np.delete(all_indices, test_indices)
 
     test_files = [
@@ -45,9 +48,6 @@ for genre in config["genres"]:
     output_dict["split"].extend(["test"] * (100 - config["train_percent"]))
 
 output_df = pd.DataFrame(output_dict)
-
-# WARNING: don't un-comment unless you want to change the whole train/test split 
-# irreversibly
 
 output_df.to_csv(output, index=False)
 
@@ -70,15 +70,9 @@ def copy_file(row):
         os.path.join(data_path, row["split"], row["genre"], row["file_name"])
     )
 
-# WARNING: don't un-comment unless you want to change the whole train/test split 
-# irreversibly
-
 _ = output_df.apply(copy_file, axis=1)
 
 # clean up
-
-# WARNING: don't un-comment unless you want to change the whole train/test split 
-# irreversibly
 
 for genre in config["genres"]:
     shutil.rmtree(os.path.join(data_path, genre))
