@@ -11,5 +11,13 @@
         "reggae", 
         "rock"
     ],
-    "train_percent": 90
+    "train_percent": 90,
+    "feature_engineering":{
+        "number_pieces":14, 
+        "sampling_rate":22050, 
+        "piece_length_in_s":4, 
+        "overlap_in_s":2,
+        "n_mels": 40,
+        "hop_length_in_s": 0.125
+    }
 }
