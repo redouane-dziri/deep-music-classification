@@ -1,3 +1,5 @@
+# IMPORTANT: train_test_split should have been run before
+
 import os
 import shutil
 
@@ -13,9 +15,11 @@ with open(git_root("config", "config.json"), 'r') as config:
 
 data_root = git_root("data")
 
-train_test_split = pd.read_csv(
-    os.path.join(data_root, "metadata", "train_test_split.csv")
+train_test_split_path = os.path.join(
+    data_root, "metadata", "train_test_split.csv"
 )
+
+train_test_split = pd.read_csv(train_test_split_path)
 
 def sample_18_2(block):
     sample_size = 2
@@ -49,4 +53,22 @@ def copy_file(row):
         )
     )
 
-_ = samples.apply(copy_file, axis=1)
+# WARNING: don't un-comment unless you want to change the whole samples 
+# irreversibly
+
+#_ = samples.apply(copy_file, axis=1)
+
+# add sample information to train_test_split.csv 
+
+train_test_split = train_test_split.merge(
+    samples[["file_name"]], how="left", on="file_name", indicator="sample"
+)
+
+train_test_split["sample"] = train_test_split["sample"].map(
+    {"left_only": False, "both": True}
+)
+
+# WARNING: don't un-comment unless you want to change the whole samples 
+# irreversibly
+
+# train_test_split.to_csv(train_test_split_path)
