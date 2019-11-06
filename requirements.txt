@@ -6,3 +6,4 @@ git_root
 json
 librosa
 skimage
+spicy

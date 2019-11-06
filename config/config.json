@@ -13,11 +13,31 @@
     ],
     "train_percent": 90,
     "feature_engineering":{
-        "number_pieces":14, 
         "sampling_rate":22050, 
-        "piece_length_in_s":4, 
-        "overlap_in_s":2,
-        "n_mels": 40,
-        "hop_length_in_s": 0.125
-    }
+        "divide": {
+            "number_pieces":14,
+            "piece_length_in_s":4, 
+            "overlap_in_s":2
+        },
+        "mel_map": {
+            "n_mels": 40,
+            "hop_length_in_s": 0.125
+        },
+        "spectrogram": {
+            "hop_length_in_s": 0.186
+        },
+        "quantization": {
+            "n_levels": 16
+        },
+        "GLCM": {
+            "distance": 1,
+            "spectrogram": {
+                "angles_in_deg": [0]
+            },
+            "mel_map": {
+                "angles_in_deg": [0, 45, 90, 135]
+            }
+        }
+    },
+    "using_sample_data": true
 }
