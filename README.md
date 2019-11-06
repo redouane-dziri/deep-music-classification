@@ -11,7 +11,6 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 ## Timeline
 
-- by 11/07: write script to pre-process the data according to the methods set forward in the paper, transform the dataset to - these features and write them to disk (?)
 - by 11/14: write the model and launch distributed training and monitor (using TensorBoard?), tune the model
 - by 11/21: evaluate like in paper, gather new data
 - by 11/28: preprocess new data and run experiments with the new data and the old model,
@@ -23,6 +22,7 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 - separated data in train/test
 - hosted the GTZAN train/test data in Cloud Storage
+- pre-processed the data according to the methods set forward in the paper
 
 
 
