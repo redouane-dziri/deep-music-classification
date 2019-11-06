@@ -9,6 +9,15 @@ from feature_engineering.generate_spectrogram import generate_spectrogram
 from feature_engineering.generate_GLCM import generate_glcm
 
 
+# STEP 1: Load the configurations
+# ------------------------------------------------------------------------------
+
+with open(git_root("config", "config.json"), "r") as config:
+	    config = json.load(config)
+		
+params = config["feature_engineering"]
+
+
 def generate_short_term_pieces_from_dict(data):
     """This function generates a the short term pieces for all tracks of the
     dataset
@@ -186,14 +195,6 @@ def preprocess_data():
                         for a short-term piece in a file with the associated
                         name and genre
     """
-
-    # STEP 1: Load the configurations
-    # --------------------------------------------------------------------------
-
-    with open(git_root("config", "config.json"), "r") as config:
-	    config = json.load(config)
-		
-    params = config["feature_engineering"]
     
     # STEP 2: Load the data
     # --------------------------------------------------------------------------
