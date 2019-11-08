@@ -1,21 +1,19 @@
+from git_root import git_root
+import os
+import sys
 import json
 
-from git_root import git_root
+import numpy as np
 
-from utils import utils
-
-from feature_engineering.generate_melmap import generate_mel_map
-from feature_engineering.generate_spectrogram import generate_spectrogram
-from feature_engineering.generate_GLCM import generate_glcm
+from generate_melmap import generate_mel_map
+from generate_spectrogram import generate_spectrogram
+from generate_GLCM import generate_glcm
 
 
-# STEP 1: Load the configurations
-# ------------------------------------------------------------------------------
-
-with open(git_root("config", "config.json"), "r") as config:
-	    config = json.load(config)
-		
-params = config["feature_engineering"]
+# <---- For importing a .py file from another package ---->
+sys.path.append(os.path.join(git_root(),'utils'))
+sys.path.append(os.path.join(git_root(),'feature_engineering'))
+from utils import read_in_data, generate_short_term_piece, quantize, load_params, load_config
 
 
 def generate_short_term_pieces_from_dict(data):
@@ -35,11 +33,14 @@ def generate_short_term_pieces_from_dict(data):
     # piece[0] is the numpy representation of the chunk
     # piece[1] is the split id
     # track[2] is the "genre"
+
+    params = load_params()
+
     for split in data:
 	    data[split] = [
             (track[0], piece[0], piece[1], track[2]) 
                 for track in data[split]
-                for piece in utils.generate_short_term_piece(
+                for piece in generate_short_term_piece(
 				    track[1],
 				    number_pieces=params["divide"]["number_pieces"], 
 				    sampling_rate=params["sampling_rate"],
@@ -63,6 +64,9 @@ def generate_mel_maps_from_dict(data):
         mel_maps {dict} -- keys in ('train', 'test'), values are lists of tuples
             ('file_name', 'mel_map', 'split_id', 'genre')
     """
+
+    params = load_params()
+
     mel_maps = {"train": None, "test": None}
     hop_length = int(
         params["mel_map"]["hop_length_in_s"] * params["sampling_rate"]
@@ -98,6 +102,9 @@ def generate_spectrograms_from_dict(data):
         data {dict} -- keys in ('train', 'test'), values are lists of tuples
             ('file_name', 'spectrogram', 'split_id', 'genre')
     """
+
+    params = load_params()
+
     spectrograms = {"train": None, "test": None}
     hop_length = int(
         params["spectrogram"]["hop_length_in_s"] * params["sampling_rate"]
@@ -127,13 +134,16 @@ def generate_quantized_maps_from_dict(maps):
         quantized_maps {dict} -- keys in ('train', 'test'), values are lists 
         of tuples ('file_name', 'quantized_map', 'split_id', 'genre')
     """
+
+    params = load_params()
+
     quantized_maps = {"train": None, "test": None}
 
     for split in quantized_maps:
 	    quantized_maps[split] = [
             (
                 piece[0], 
-                utils.quantize(
+                quantize(
                     piece[1], n_levels=params["quantization"]["n_levels"]
                 ), 
                 piece[2], 
@@ -158,6 +168,9 @@ def generate_glcms_from_dict(maps, map_type="mel_map"):
             lists of tuples ('file_name', 'glcm', 'split_id', 'genre'),
             one dict per angle
     """
+
+    params = load_params()
+
     angles_in_deg = params["GLCM"][map_type]["angles_in_deg"]
     glcms = [{"train": None, "test": None}]*len(angles_in_deg)
 
@@ -195,12 +208,16 @@ def preprocess_data():
                         for a short-term piece in a file with the associated
                         name and genre
     """
+    # STEP 1: Load the configurations
+    # ------------------------------------------------------------------------------
+    params = load_params()
+    config = load_config()
     
     # STEP 2: Load the data
     # --------------------------------------------------------------------------
 
     # read .wav files into np arrays
-    data = utils.read_in_data(
+    data = read_in_data(
         params["sampling_rate"], sample_data=config["using_sample_data"]
     )
 
@@ -243,3 +260,27 @@ def preprocess_data():
     }
     
     return glcms
+
+if __name__=="__main__":
+
+    x = preprocess_data()
+
+    #### CURRENTLY: ISSUES TO SERIALIZE ONE OF THE NP ARRAys
+
+    for key, value in x.items():
+        for j in range(len(value)):
+            for key2, value2 in value[j].items():
+                for i in range(len(value2)):
+                    try:
+                        test = value2[i][1].tolist()
+                    except:
+                        print("Problem")
+                        if(isinstance(value2[i][1], (list))):
+                            print("Problem")
+                            print(key)
+                            print(j)
+                            print(key2)
+                    
+
+    with open(os.path.join(git_root(),'data','pipeline_output','test.json'),'w') as outfile:
+        json.dump(x, outfile)

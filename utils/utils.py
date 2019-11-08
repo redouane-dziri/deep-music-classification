@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import json
 
 import librosa
 
@@ -27,7 +28,7 @@ def read_in_data(sampling_rate, sample_data=True):
     )
 
     train_metadata = metadata.loc[metadata["split" ]== "train", ]
-    test_metadata = metadata.loc[metadata["split"] == "train", ]
+    test_metadata = metadata.loc[metadata["split"] == "test", ]
     if sample_data:
         train_metadata = train_metadata.loc[train_metadata["sample"], ]
         test_metadata = test_metadata.loc[test_metadata["sample"], ]
@@ -123,3 +124,31 @@ def quantize(array, n_levels, strategy="log"):
         raise NotImplementedError("Need to supply a valid strategy")
 
     return np.digitize(array, bin_limits).astype(np.uint8)
+
+def load_params():
+    """Helper function to read the parameters from the config file
+    
+    Arguments:None
+
+    Returns:
+        data {dict} containing whatever parameters are in the config file
+    """
+    with open(git_root("config", "config.json"), "r") as config:
+    	    config = json.load(config)
+    		
+    params = config["feature_engineering"]
+    return params
+
+def load_config():
+    """Helper function to read the entire config file
+    
+    Arguments:None
+
+    Returns:
+        data {dict} containing the entire content of the config file
+    """
+    with open(git_root("config", "config.json"), "r") as config:
+    	    config = json.load(config)
+    		
+    return config
+
