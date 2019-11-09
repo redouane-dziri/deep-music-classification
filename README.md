@@ -1,4 +1,4 @@
-# Music Genre Classifcation using CNNs
+# Music Genre Classification using CNNs
 
 *Authors: Redouane Dziri, Arnaud Stiegler*
 
