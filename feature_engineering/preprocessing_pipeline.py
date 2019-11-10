@@ -12,7 +12,6 @@ from generate_GLCM import generate_glcm
 
 # <---- For importing a .py file from another package ---->
 sys.path.append(os.path.join(git_root(),'utils'))
-sys.path.append(os.path.join(git_root(),'feature_engineering'))
 from utils import read_in_data, generate_short_term_piece, quantize, load_params, load_config
 
 
@@ -37,15 +36,15 @@ def generate_short_term_pieces_from_dict(data):
     params = load_params()
 
     for split in data:
-	    data[split] = [
+        data[split] = [
             (track[0], piece[0], piece[1], track[2]) 
                 for track in data[split]
                 for piece in generate_short_term_piece(
-				    track[1],
-				    number_pieces=params["divide"]["number_pieces"], 
-				    sampling_rate=params["sampling_rate"],
-				    piece_length=params["divide"]["piece_length_in_s"],
-				    overlap=params["divide"]["overlap_in_s"]
+                    track[1],
+                    number_pieces=params["divide"]["number_pieces"], 
+                    sampling_rate=params["sampling_rate"],
+                    piece_length=params["divide"]["piece_length_in_s"],
+                    overlap=params["divide"]["overlap_in_s"]
                 ) 
         ]
     
@@ -73,14 +72,14 @@ def generate_mel_maps_from_dict(data):
     )
 
     for split in mel_maps:
-	    mel_maps[split] = [
+        mel_maps[split] = [
             (
                 piece[0], 
                 generate_mel_map(
                     piece[1], 
                     sampling_rate=params["sampling_rate"],
-		            hop_length=hop_length,
-		            n_mels=params["mel_map"]["n_mels"]
+                    hop_length=hop_length,
+                    n_mels=params["mel_map"]["n_mels"]
                 ), 
                 piece[2], 
                 piece[3]
@@ -111,7 +110,7 @@ def generate_spectrograms_from_dict(data):
     )
 
     for split in spectrograms:
-	    spectrograms[split] = [
+        spectrograms[split] = [
             (
                 piece[0], 
                 generate_spectrogram(piece[1], hop_length=hop_length), 
@@ -140,7 +139,7 @@ def generate_quantized_maps_from_dict(maps):
     quantized_maps = {"train": None, "test": None}
 
     for split in quantized_maps:
-	    quantized_maps[split] = [
+        quantized_maps[split] = [
             (
                 piece[0], 
                 quantize(
@@ -154,7 +153,7 @@ def generate_quantized_maps_from_dict(maps):
     return quantized_maps
 
 
-def generate_glcms_from_dict(maps, map_type="mel_map"):
+def generate_glcms_from_dict(maps, map_type="mel_map", serialize=False):
     """This function generates GLCMs for all maps with co-occurrence computed
     between pairs with the distance and angles in the configuration json
     
@@ -176,8 +175,21 @@ def generate_glcms_from_dict(maps, map_type="mel_map"):
 
     for i, angle in enumerate(angles_in_deg):
         for split in glcms[i]:
-	        glcms[i][split] = [
+
+            #To have a serializable format, we just have to convert the gclm to a list format
+
+            glcms[i][split] = [
                 (
+                    piece[0], 
+                    generate_glcm(
+                        piece[1], 
+                        distance=params["GLCM"]["distance"],
+                        angle_in_deg=angle
+                    ).tolist(), 
+                    piece[2], 
+                    piece[3]
+                ) if serialize
+                else (
                     piece[0], 
                     generate_glcm(
                         piece[1], 
@@ -186,13 +198,14 @@ def generate_glcms_from_dict(maps, map_type="mel_map"):
                     ), 
                     piece[2], 
                     piece[3]
-                ) for piece in maps[split]
+                )
+                for piece in maps[split]
             ]
     
     return glcms
 
 
-def preprocess_data():
+def preprocess_data(pre_loaded_data=None, serialize=False):
     """This function reads in the data, computes the successive maps needed and
     outputs a list of dicts containing the appropriate GLCM to feed in the
     neural network
@@ -216,10 +229,15 @@ def preprocess_data():
     # STEP 2: Load the data
     # --------------------------------------------------------------------------
 
-    # read .wav files into np arrays
-    data = read_in_data(
-        params["sampling_rate"], sample_data=config["using_sample_data"]
-    )
+    if(pre_loaded_data is None):
+
+        # read .wav files into np arrays
+        data = read_in_data(
+            params["sampling_rate"], sample_data=config["using_sample_data"]
+        )
+
+    else:
+        data = pre_loaded_data
 
     # STEP 3: Cut the data into smaller chunks
     # --------------------------------------------------------------------------
@@ -242,18 +260,27 @@ def preprocess_data():
     # --------------------------------------------------------------------------
 
     quantized_mel_maps = generate_quantized_maps_from_dict(mel_maps)
+
     quantized_spectrograms = generate_quantized_maps_from_dict(spectrograms)
 
     # STEP 7: Generate the GLCMs
     # --------------------------------------------------------------------------
 
     glcms_from_spectrogram = generate_glcms_from_dict(
-        quantized_spectrograms, map_type="spectrogram"
+        quantized_spectrograms, map_type="spectrogram",
+        serialize=True
     )
 
+    #print(glcms_from_spectrogram[0]['train'][0][1].shape)
+    #print(type(glcms_from_spectrogram[0]['train'][0][1]))
+
     glcms_from_mel_map = generate_glcms_from_dict(
-        quantized_mel_maps, map_type="mel_map"
+        quantized_mel_maps, map_type="mel_map",
+        serialize=True
     )
+
+    #print(glcms_from_mel_map[0]['train'][0][1].shape)
+    #print(type(glcms_from_mel_map[0]['train'][0][1]))
 
     glcms = {
         "spectrogram": glcms_from_spectrogram, "mel_map": glcms_from_mel_map
@@ -263,24 +290,16 @@ def preprocess_data():
 
 if __name__=="__main__":
 
-    x = preprocess_data()
+    print("Preprocessing the data")
+    #Checking the preprocessing functions
+    x = preprocess_data(serialize=True)               
 
-    #### CURRENTLY: ISSUES TO SERIALIZE ONE OF THE NP ARRAys
+    print("Dumping the spectrogram data")
+    #Dumping the result to a json file
+    with open(os.path.join(git_root(),'data','pipeline_output','test_spectrogram.json'),'w') as outfile:
+        json.dump(x['spectrogram'], outfile)
 
-    for key, value in x.items():
-        for j in range(len(value)):
-            for key2, value2 in value[j].items():
-                for i in range(len(value2)):
-                    try:
-                        test = value2[i][1].tolist()
-                    except:
-                        print("Problem")
-                        if(isinstance(value2[i][1], (list))):
-                            print("Problem")
-                            print(key)
-                            print(j)
-                            print(key2)
-                    
-
-    with open(os.path.join(git_root(),'data','pipeline_output','test.json'),'w') as outfile:
-        json.dump(x, outfile)
+    print("Dumping the mel map data")
+    #Dumping the result to a json file
+    with open(os.path.join(git_root(),'data','pipeline_output','test_mel_map.json'),'w') as outfile:
+        json.dump(x['mel_map'], outfile)
