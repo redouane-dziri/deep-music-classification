@@ -8,14 +8,14 @@ storage_client = storage.Client("Music-Genre-Classification")
 
 bucket = storage_client.get_bucket("deep-music-classification")
 
-blobs = bucket.list_blobs(prefix=os.path.join("data","full_data","test"))
+blobs = bucket.list_blobs(prefix=os.path.join("data/output_test"))
 
 for blob in blobs:
     print(blob)
-    desc = blob.name.split('/')
-    train_or_test = desc[2]
-    label = desc[3]
-    filename = desc[4]
+    #desc = blob.name.split('/')
+    #train_or_test = desc[2]
+    #label = desc[3]
+    #filename = desc[4]
    
 
 #Snippet to understand how to download/upload files from google storage

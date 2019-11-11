@@ -64,6 +64,7 @@ for blobs in blobs_list:
 
         #add it to our data
         data[train_or_test].append((filename,file_numpy_representation,label))
+        break
         
 
 
@@ -79,17 +80,33 @@ print("Dumping the spectrogram data")
 
 deg_list = config['feature_engineering']['GLCM']['spectrogram']["angles_in_deg"]
 for i in range(len(deg_list)):
+
+    filename = 'data_spectrogram_angle_{}.json'.format(deg_list[i])
+    print(filename)
     #Dumping the result to a json file
-    with open(os.path.join(git_root(),'data','preprocessed_data','data_spectrogram_angle_{}.json'.format(deg_list[i])),'w') as outfile:
+    with open(os.path.join(git_root(),'data','preprocessed_data',filename),'w') as outfile:
         json.dump(x['spectrogram'][i], outfile)
+
+    #Loading the data to google storage
+    blob_out = bucket.blob(os.path.join("data","preprocessed_data","spectrogram",filename))
+    blob_out.upload_from_filename(filename=os.path.join(git_root(),'data','preprocessed_data',filename))
+
 
 print("Dumping the mel map data")
 
 deg_list = config['feature_engineering']['GLCM']['mel_map']["angles_in_deg"]
 for i in range(len(deg_list)):
+
+    filename = 'data_mel_map_angle_{}.json'.format(deg_list[i])
+    print(filename)
+
     #Dumping the result to a json file
-    with open(os.path.join(git_root(),'data','preprocessed_data','data_mel_map_angle_{}.json'.format(deg_list[i])),'w') as outfile:
+    with open(os.path.join(git_root(),'data','preprocessed_data',filename),'w') as outfile:
         json.dump(x['mel_map'][i], outfile)
+
+    #Loading the data to google storage
+    blob_out = bucket.blob(os.path.join("data","preprocessed_data","mel_map",filename))
+    blob_out.upload_from_filename(filename=os.path.join(git_root(),'data','preprocessed_data',filename))
 
 #Delete the temporary folder
 shutil.rmtree(temp_dir_path)
