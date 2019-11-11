@@ -64,7 +64,7 @@ for blobs in blobs_list:
 
         #add it to our data
         data[train_or_test].append((filename,file_numpy_representation,label))
-        break
+
         
 
 
@@ -92,6 +92,7 @@ for i in range(len(deg_list)):
     blob_out.upload_from_filename(filename=os.path.join(git_root(),'data','preprocessed_data',filename))
 
 
+
 print("Dumping the mel map data")
 
 deg_list = config['feature_engineering']['GLCM']['mel_map']["angles_in_deg"]
@@ -107,6 +108,7 @@ for i in range(len(deg_list)):
     #Loading the data to google storage
     blob_out = bucket.blob(os.path.join("data","preprocessed_data","mel_map",filename))
     blob_out.upload_from_filename(filename=os.path.join(git_root(),'data','preprocessed_data',filename))
+
 
 #Delete the temporary folder
 shutil.rmtree(temp_dir_path)

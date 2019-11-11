@@ -8,7 +8,7 @@ storage_client = storage.Client("Music-Genre-Classification")
 
 bucket = storage_client.get_bucket("deep-music-classification")
 
-blobs = bucket.list_blobs(prefix=os.path.join("data/output_test"))
+blobs = bucket.list_blobs(prefix=os.path.join("data/preprocessed_data"))
 
 for blob in blobs:
     print(blob)
