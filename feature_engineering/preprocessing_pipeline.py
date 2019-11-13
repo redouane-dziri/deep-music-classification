@@ -10,8 +10,8 @@ from generate_spectrogram import generate_spectrogram
 from generate_GLCM import generate_glcm
 
 
-# <---- For importing a .py file from another package ---->
-sys.path.append(os.path.join(git_root(),'utils'))
+# <---- For importing a .py file from another module ---->
+sys.path.append(os.path.join(git_root(), "utils"))
 from utils import read_in_data, generate_short_term_piece, quantize, load_params, load_config
 
 
@@ -67,8 +67,8 @@ def generate_mel_maps_from_dict(data):
     params = load_params()
 
     mel_maps = {"train": None, "test": None}
-    hop_length = int(
-        params["mel_map"]["hop_length_in_s"] * params["sampling_rate"]
+    frame_sample_length = int(
+        params["mel_map"]["frame_length_in_s"] * params["sampling_rate"]
     )
 
     for split in mel_maps:
@@ -78,7 +78,8 @@ def generate_mel_maps_from_dict(data):
                 generate_mel_map(
                     piece[1], 
                     sampling_rate=params["sampling_rate"],
-                    hop_length=hop_length,
+                    frame_length=frame_sample_length,
+                    overlap=params["mel_map"]["overlap"],
                     n_mels=params["mel_map"]["n_mels"]
                 ), 
                 piece[2], 
@@ -105,15 +106,19 @@ def generate_spectrograms_from_dict(data):
     params = load_params()
 
     spectrograms = {"train": None, "test": None}
-    hop_length = int(
-        params["spectrogram"]["hop_length_in_s"] * params["sampling_rate"]
+    frame_sample_length = int(
+        params["spectrogram"]["frame_length_in_s"] * params["sampling_rate"]
     )
 
     for split in spectrograms:
         spectrograms[split] = [
             (
                 piece[0], 
-                generate_spectrogram(piece[1], hop_length=hop_length), 
+                generate_spectrogram(
+                    piece[1], 
+                    frame_length=frame_sample_length, 
+                    overlap=params["spectrogram"]["overlap"]
+                ), 
                 piece[2], 
                 piece[3]
             ) for piece in data[split]
@@ -176,7 +181,7 @@ def generate_glcms_from_dict(maps, map_type="mel_map", serialize=False):
     for i, angle in enumerate(angles_in_deg):
         for split in glcms[i]:
 
-            #To have a serializable format, we just have to convert the gclm to a list format
+            # to have a serializable format, we just have to convert the gclm to a list format
 
             glcms[i][split] = [
                 (
@@ -222,7 +227,7 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
                         name and genre
     """
     # STEP 1: Load the configurations
-    # ------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     params = load_params()
     config = load_config()
     
@@ -296,10 +301,10 @@ if __name__=="__main__":
 
     print("Dumping the spectrogram data")
     #Dumping the result to a json file
-    with open(os.path.join(git_root(),'data','pipeline_output','test_spectrogram.json'),'w') as outfile:
+    with open(git_root('data','pipeline_output','test_spectrogram.json'),'w') as outfile:
         json.dump(x['spectrogram'], outfile)
 
     print("Dumping the mel map data")
     #Dumping the result to a json file
-    with open(os.path.join(git_root(),'data','pipeline_output','test_mel_map.json'),'w') as outfile:
+    with open(git_root('data','pipeline_output','test_mel_map.json'),'w') as outfile:
         json.dump(x['mel_map'], outfile)

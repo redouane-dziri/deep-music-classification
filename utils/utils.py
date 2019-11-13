@@ -110,16 +110,19 @@ def quantize(array, n_levels, strategy="log"):
     """
     epsilon = 1e-8
 
-    a_max = array.max() + epsilon
+    a_max = array.max()
     a_min = array.min()
 
     if strategy == "linear":
         bin_limits = np.linspace(a_min, a_max, num=n_levels+1)
     elif strategy == "log":
         # log spaced points between the min and max of the array
+        # in case min is zero
         bin_limits = np.logspace(
-            np.log10(a_min), np.log10(a_max), num=n_levels+1
+            np.log10(a_min + epsilon), np.log10(a_max), num=n_levels+1
         )
+        bin_limits[0] = -np.Inf
+        bin_limits[-1] = np.Inf
     else:
         raise NotImplementedError("Need to supply a valid strategy")
 
@@ -127,8 +130,6 @@ def quantize(array, n_levels, strategy="log"):
 
 def load_params():
     """Helper function to read the parameters from the config file
-    
-    Arguments:None
 
     Returns:
         data {dict} containing whatever parameters are in the config file
@@ -141,8 +142,6 @@ def load_params():
 
 def load_config():
     """Helper function to read the entire config file
-    
-    Arguments:None
 
     Returns:
         data {dict} containing the entire content of the config file
@@ -151,4 +150,3 @@ def load_config():
     	    config = json.load(config)
     		
     return config
-

@@ -1,22 +1,26 @@
 import numpy as np
 
-from scipy.signal import spectrogram
+import librosa
 
 
-def generate_spectrogram(array, hop_length):
+def generate_spectrogram(array, frame_length, overlap):
     """This function generates a spectrogram with consecutive Fourier transforms
     from a numpy representation of mono .wav files
     
     Arguments:
         array {np.array} -- float np.array
-        hop_length {int} -- the hop length in units of frames per second
-        n_mels {int} -- the number of filter-bank channels
+        frame_length {int} -- the number of samples in each analysis window
+        overlap {float} -- in [0, 1) the fraction of overlap for each window
     """
 
-    _, _, spect = spectrogram(
-        array,
-        nperseg=hop_length,
-        noverlap=hop_length//2
+    fourier_transform = np.abs(
+        librosa.stft(
+            array, n_fft=frame_length, hop_length=int((1 - overlap) * frame_length)
+        )
     )
 
-    return spect
+    # convert the amplitude spectrogram to dB-scaled spectrogram
+    # scaling with respect to the maximum value of the Fourier transform
+    spectrogram = librosa.amplitude_to_db(fourier_transform, ref=np.max)
+
+    return spectrogram

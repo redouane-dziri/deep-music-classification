@@ -21,10 +21,12 @@
         },
         "mel_map": {
             "n_mels": 40,
-            "hop_length_in_s": 0.125
+            "frame_length_in_s": 0.125,
+            "overlap": 0
         },
         "spectrogram": {
-            "hop_length_in_s": 0.186
+            "frame_length_in_s": 0.186,
+            "overlap": 0.5
         },
         "quantization": {
             "n_levels": 16
@@ -39,5 +41,6 @@
             }
         }
     },
-    "using_sample_data": true
+    "using_sample_data": true,
+    "sample_data_per_genre": 20
 }
