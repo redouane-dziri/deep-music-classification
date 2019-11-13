@@ -11,11 +11,11 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 ## Timeline
 
-- by 11/14: write the model and launch distributed training and monitor (using TensorBoard?), tune the model
-- by 11/21: evaluate like in paper, gather new data
-- by 11/28: preprocess new data and run experiments with the new data and the old model,
+- by 11/14: finish creating the features, explore the features created and get a feel of the complexity of the classification problem
+- by 11/21: write the model and debug training on the sample data (fit until overfit, and try to extract as much info as possible from the data)
+- by 11/28: train models on whole data, monitor, tune (also using keras-tuner?), save the models
 - by 12/05: short presentation of what was accomplished and what’s left, start writing report
-- by 12/12: write text-part of the model, train it and combine both
+- by 12/12: evaluate in detail like in paper, plot graph like theirs
 - by 12/20: finish report, demo, presentation
 
 ## Done
