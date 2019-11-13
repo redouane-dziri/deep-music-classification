@@ -23,6 +23,8 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 - separated data in train/test
 - hosted the GTZAN train/test data in Cloud Storage
 - pre-processed the data according to the methods set forward in the paper
+- explored the audio data
+- explored the pre-processed data
 
 
 
