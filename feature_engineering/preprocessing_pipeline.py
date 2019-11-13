@@ -12,11 +12,48 @@ from generate_GLCM import generate_glcm
 
 # <---- For importing a .py file from another module ---->
 sys.path.append(os.path.join(git_root(), "utils"))
-from utils import read_in_data, generate_short_term_piece, quantize, load_params, load_config
+from utils import read_in_data, generate_short_term_piece
+from utils import quantize, load_params, load_config
+
+
+def pad_from_dict(data):
+    """This function pads tracks that are too short to produce 14 chunks in the
+    later short term pieces generation
+    
+    Arguments:
+        data {dict} -- keys in ('train', 'test'), values are lists of tuples
+            ('file_name', 'numpy_representation', 'genre')
+
+    Returns:
+        data_padded {dict} -- keys in ('train', 'test'), values are lists of 
+            tuples ('file_name', 'numpy_representation', 'split_id', 'genre')
+            and the numpy representations are padded with zeros
+    """
+
+    # track[0] is the "file_name"
+    # track[0] is the numpy representation of the track
+    # track[2] is the "genre"
+
+    params = load_params()
+
+    min_length = params["min_piece_length"]
+
+    # important to not overwrite `data`!
+    data_padded = {"train": None, "test": None}
+    for split in data:
+        data_padded[split] = [
+            (
+                track[0], 
+                np.pad(track[1], max(min_length - len(track[1]), 0)),
+                track[2]
+            ) for track in data[split]
+        ]
+    
+    return data_padded
 
 
 def generate_short_term_pieces_from_dict(data):
-    """This function generates a the short term pieces for all tracks of the
+    """This function generates he short term pieces for all tracks of the
     dataset
     
     Arguments:
@@ -24,8 +61,8 @@ def generate_short_term_pieces_from_dict(data):
             ('file_name', 'numpy_representation', 'genre')
 
     Returns:
-        data {dict} -- keys in ('train', 'test'), values are lists of tuples
-            ('file_name', 'numpy_representation', 'split_id', 'genre')
+        data_pieces {dict} -- keys in ('train', 'test'), values are lists of 
+            tuples ('file_name', 'numpy_representation', 'split_id', 'genre')
     """
 
     # track[0] is the "file_name"
@@ -35,8 +72,10 @@ def generate_short_term_pieces_from_dict(data):
 
     params = load_params()
 
+    # important to not overwrite `data`!
+    data_pieces = {"train": None, "test": None}
     for split in data:
-        data[split] = [
+        data_pieces[split] = [
             (track[0], piece[0], piece[1], track[2]) 
                 for track in data[split]
                 for piece in generate_short_term_piece(
@@ -48,7 +87,7 @@ def generate_short_term_pieces_from_dict(data):
                 ) 
         ]
     
-    return data
+    return data_pieces
 
 
 def generate_mel_maps_from_dict(data):
@@ -244,31 +283,36 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
     else:
         data = pre_loaded_data
 
-    # STEP 3: Cut the data into smaller chunks
+    # STEP 3: Pad the data to prepare the division into chunks
+    # --------------------------------------------------------------------------
+
+    data = pad_from_dict(data)
+
+    # STEP 4: Cut the data into smaller chunks
     # --------------------------------------------------------------------------
 
     data = generate_short_term_pieces_from_dict(data)
 
-    # STEP 4: Generate mel maps for each chunk
+    # STEP 5: Generate mel maps for each chunk
     # --------------------------------------------------------------------------
 
     # convert the numpy representations of .wav files to mel_maps
     mel_maps = generate_mel_maps_from_dict(data)
 
-    # STEP 5: Generate spectrograms for each chunk
+    # STEP 6: Generate spectrograms for each chunk
     # --------------------------------------------------------------------------
 
     # convert the numpy representations of .wav files to spectrograms
     spectrograms = generate_spectrograms_from_dict(data)
 
-    # STEP 6: Quantize the maps
+    # STEP 7: Quantize the maps
     # --------------------------------------------------------------------------
 
     quantized_mel_maps = generate_quantized_maps_from_dict(mel_maps)
 
     quantized_spectrograms = generate_quantized_maps_from_dict(spectrograms)
 
-    # STEP 7: Generate the GLCMs
+    # STEP 8: Generate the GLCMs
     # --------------------------------------------------------------------------
 
     glcms_from_spectrogram = generate_glcms_from_dict(
@@ -293,18 +337,20 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
     
     return glcms
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
 
     print("Preprocessing the data")
     #Checking the preprocessing functions
     x = preprocess_data(serialize=True)               
 
     print("Dumping the spectrogram data")
+    output_dir = git_root("data", "pipeline_output")
     #Dumping the result to a json file
-    with open(git_root('data','pipeline_output','test_spectrogram.json'),'w') as outfile:
-        json.dump(x['spectrogram'], outfile)
+    with open(os.path.join(output_dir, "test_spectrogram.json"), "w") as outfile:
+        json.dump(x["spectrogram"], outfile)
 
     print("Dumping the mel map data")
     #Dumping the result to a json file
-    with open(git_root('data','pipeline_output','test_mel_map.json'),'w') as outfile:
-        json.dump(x['mel_map'], outfile)
+    with open(os.path.join(output_dir, "test_mel_map.json"), "w") as outfile:
+        json.dump(x["mel_map"], outfile)

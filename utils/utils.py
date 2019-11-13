@@ -1,4 +1,6 @@
 import os
+import sys
+import io
 
 import numpy as np
 import pandas as pd
@@ -7,6 +9,32 @@ import json
 import librosa
 
 from git_root import git_root
+
+
+
+def load_params():
+    """Helper function to read the parameters from the config file
+
+    Returns:
+        data {dict} containing whatever parameters are in the config file
+    """
+    with open(git_root("config", "config.json"), "r") as config:
+    	    config = json.load(config)
+    		
+    params = config["feature_engineering"]
+    return params
+
+
+def load_config():
+    """Helper function to read the entire config file
+
+    Returns:
+        data {dict} containing the entire content of the config file
+    """
+    with open(git_root("config", "config.json"), "r") as config:
+    	    config = json.load(config)
+    		
+    return config
 
 
 def read_in_data(sampling_rate, sample_data=True):
@@ -92,61 +120,43 @@ def generate_short_term_piece(
 	return list(zip(view, range(number_pieces)))
 
 
-def quantize(array, n_levels, strategy="log"):
-    """This function quantisizes a float array into an int array mapping
-    original values in `n_levels` bins between the min and max original values.
-    The mapping can be linear or logarithmic.
+def quantize(array, n_levels):
+    """This function quantizes a float array into an int array mapping original 
+    decibel values (contained in [-80, 0] in `n_levels` bins linearly spaced in
+    `[-80, 0]` (e.g. for `n_levels=16`, will bin in buckets of 5dB)
     
     Arguments:
         array {np.array} -- float array
         n_levels {int} -- the number of bins
-        strategy {string} -- one of ('linear', 'log'), decides whether bin
-            boundaries are linearly of logarithmically spaced
 
     Returns:
         {np.array} -- an int array with the bin index in which each original
             value falls (includes lower boundary of the bins and excludes the
             upper boundary)
     """
-    epsilon = 1e-8
+    epsilon = 1e-4
 
-    a_max = array.max()
-    a_min = array.min()
-
-    if strategy == "linear":
-        bin_limits = np.linspace(a_min, a_max, num=n_levels+1)
-    elif strategy == "log":
-        # log spaced points between the min and max of the array
-        # in case min is zero
-        bin_limits = np.logspace(
-            np.log10(a_min + epsilon), np.log10(a_max), num=n_levels+1
-        )
-        bin_limits[0] = -np.Inf
-        bin_limits[-1] = np.Inf
-    else:
-        raise NotImplementedError("Need to supply a valid strategy")
+    # making sure to include 0dB in the last bin and not its separate bin
+    bin_limits = np.linspace(-80, 0, num=n_levels+1)
+    bin_limits[-1] = epsilon
 
     return np.digitize(array, bin_limits).astype(np.uint8)
 
-def load_params():
-    """Helper function to read the parameters from the config file
-
+def capture_output(function, *args):
+    """This function captures the output of a function call by diverting the
+    `stdout` output momentarily
+    
+    Arguments:
+        function {function} -- function to call
+        args {} -- the value of arguments to feed the function
+    
     Returns:
-        data {dict} containing whatever parameters are in the config file
+        output {} -- the output of the function call if any
     """
-    with open(git_root("config", "config.json"), "r") as config:
-    	    config = json.load(config)
-    		
-    params = config["feature_engineering"]
-    return params
 
-def load_config():
-    """Helper function to read the entire config file
+    sys.stdout = io.StringIO()
+    output = function(*args)
+    sys.stdout = sys.__stdout__
 
-    Returns:
-        data {dict} containing the entire content of the config file
-    """
-    with open(git_root("config", "config.json"), "r") as config:
-    	    config = json.load(config)
-    		
-    return config
+    return output
+    

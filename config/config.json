@@ -13,11 +13,12 @@
     ],
     "train_percent": 90,
     "feature_engineering":{
-        "sampling_rate":22050, 
+        "sampling_rate": 22050, 
         "divide": {
-            "number_pieces":14,
-            "piece_length_in_s":4, 
-            "overlap_in_s":2
+            "number_pieces": 14,
+            "piece_length_in_s": 4, 
+            "overlap_in_s": 2,
+            "min_piece_length": 661504
         },
         "mel_map": {
             "n_mels": 40,
