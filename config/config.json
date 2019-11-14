@@ -40,6 +40,13 @@
             "mel_map": {
                 "angles_in_deg": [0, 45, 90, 135]
             }
+        },
+        "MFCC": {
+            "frame_length_in_s": 0.04,
+            "overlap": 0.5,
+            "n_mfcc": 40,
+            "n_submaps": 30,
+            "n_windows": 1500
         }
     },
     "using_sample_data": true,
