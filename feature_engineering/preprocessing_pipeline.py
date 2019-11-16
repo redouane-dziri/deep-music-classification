@@ -197,7 +197,7 @@ def generate_quantized_maps_from_dict(maps):
     return quantized_maps
 
 
-def generate_glcms_from_dict(maps, map_type="mel_map", serialize=False):
+def generate_glcms_from_dict(maps, map_type, serialize=False):
     """This function generates GLCMs for all maps with co-occurrence computed
     between pairs with the distance and angles in the configuration json
     
@@ -215,26 +215,27 @@ def generate_glcms_from_dict(maps, map_type="mel_map", serialize=False):
     params = load_params()
 
     angles_in_deg = params["GLCM"][map_type]["angles_in_deg"]
-    glcms = [{"train": None, "test": None}]*len(angles_in_deg)
+    
+    glcms = []
 
-    for i, angle in enumerate(angles_in_deg):
-        for split in glcms[i]:
+    for angle in angles_in_deg:
+        
+        glcm_angle = {}
+        
+        for split in maps:
 
-            # to have a serializable format, we just have to convert the gclm to a list format
-
-            glcms[i][split] = [
+            # to have a serializable format, we just have to convert the gclm to 
+            # a list format
+            
+            glcm_angle[split] = [
                 (
                     piece[0], 
                     generate_glcm(
                         piece[1], 
                         distance=params["GLCM"]["distance"],
                         angle_in_deg=angle
-                    ).tolist(), 
-                    piece[2], 
-                    piece[3]
-                ) if serialize
-                else (
-                    piece[0], 
+                    ).tolist() if serialize
+                    else 
                     generate_glcm(
                         piece[1], 
                         distance=params["GLCM"]["distance"],
@@ -242,11 +243,54 @@ def generate_glcms_from_dict(maps, map_type="mel_map", serialize=False):
                     ), 
                     piece[2], 
                     piece[3]
-                )
+                ) 
                 for piece in maps[split]
             ]
+            
+        glcms.append(glcm_angle)
     
     return glcms
+
+
+def drop_first_glcm_level_from_dict(glcms, serialize=False):
+    """This function drops the first grey level from GLCMs and returns the dict
+    with the smaller GLCMs 
+    
+    Arguments:
+        glcms {dict} -- keys in ('train', 'test'), values are lists of tuples
+            ('file_name', 'numpy_glcm', 'split_id', 'genre')
+        serialize {boolean} -- whether to return a list of lists from the numpy
+            arrays or not
+
+    Returns:
+        output {list} -- list of dicts with keys in ('train', 'test'), and values
+            lists of tuples ('file_name', 'glcm', 'split_id', 'genre'),
+            one dict per angle
+    """
+
+    output = []
+
+    for glcm in glcms:
+        
+        dropped_glcm = {split: None for split in glcm}
+
+        for split in glcm:
+
+            dropped_glcm[split] = [
+                (
+                    piece[0], 
+                    piece[1][1:, 1:].tolist() if serialize 
+                    else 
+                    piece[1][1:, 1:],
+                    piece[2], 
+                    piece[3]
+                ) 
+                for piece in glcm[split]
+            ]
+        
+        output.append(dropped_glcm)
+    
+    return output
 
 
 def generate_MFCC_from_dict(data, serialize=False):
@@ -260,7 +304,8 @@ def generate_MFCC_from_dict(data, serialize=False):
     Returns:
         data {dict} -- keys in ('train', 'test'), values are lists of tuples
             ('file_name', 'mfcc', 'split_id', 'genre')
-        !!!! the output is the splitted mfcc so the shape is (n_submaps, n_mfcc, t) which corresponds for the paper to (30, 40, 50)
+        !!!! the output is the splitted mfcc so the shape is 
+        (n_submaps, n_mfcc, t) which corresponds for the paper to (30, 40, 50)
     """
 
     params = load_params()
@@ -271,28 +316,34 @@ def generate_MFCC_from_dict(data, serialize=False):
         mfcc[split] = [
             (
                 piece[0],
-                np.array(np.split(generate_MFCC(
-                    piece[1], 
-                    n_mfcc =  params["MFCC"]["n_mfcc"],
-                    frame_length=params["MFCC"]["frame_length_in_s"], 
-                    overlap=params["MFCC"]["overlap"],
-                    sampling_rate=params["sampling_rate"],
-                    n_windows=params["MFCC"]["n_windows"]
-                ), params["MFCC"]["n_submaps"],axis=1)).tolist(), 
-                    piece[2]
-                ) if serialize
-                else (
-                    piece[0], 
-                    np.split(generate_MFCC(
-                    piece[1], 
-                    n_mfcc =  params["MFCC"]["n_mfcc"],
-                    frame_length=params["MFCC"]["frame_length_in_s"], 
-                    overlap=params["MFCC"]["overlap"],
-                    sampling_rate=params["sampling_rate"],
-                    n_windows=params["MFCC"]["n_windows"]
-                ), params["MFCC"]["n_submaps"],axis=1), 
+                np.stack(
+                    np.split(
+                        generate_MFCC(
+                            piece[1], 
+                            n_mfcc =  params["MFCC"]["n_mfcc"],
+                            frame_length=params["MFCC"]["frame_length_in_s"], 
+                            overlap=params["MFCC"]["overlap"],
+                            sampling_rate=params["sampling_rate"],
+                            n_windows=params["MFCC"]["n_windows"]
+                        ), 
+                        params["MFCC"]["n_submaps"], 
+                        axis=1
+                    ),
+                    axis=0
+                ) if not serialize else
+                np.split(
+                    generate_MFCC(
+                        piece[1], 
+                        n_mfcc =  params["MFCC"]["n_mfcc"],
+                        frame_length=params["MFCC"]["frame_length_in_s"], 
+                        overlap=params["MFCC"]["overlap"],
+                        sampling_rate=params["sampling_rate"],
+                        n_windows=params["MFCC"]["n_windows"]
+                    )
+                ), 
                 piece[2]
-            ) for piece in data[split]
+            )
+            for piece in data[split]
         ]
     
     return mfcc
@@ -339,10 +390,11 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
 
 
     # STEP 4: generate mfcc from the data
-    # We need to do that before generating the short term pieces (because the process is different for mcff)
+    # We need to do that before generating the short term pieces 
+    # (because the process is different for mcff)
     # --------------------------------------------------------------------------
 
-    mfcc = generate_MFCC_from_dict(data, serialize=True)
+    mfcc = generate_MFCC_from_dict(data, serialize=serialize)
 
 
     # STEP 5: Cut the data into smaller chunks
@@ -366,30 +418,42 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
     # --------------------------------------------------------------------------
 
     quantized_mel_maps = generate_quantized_maps_from_dict(mel_maps)
-
     quantized_spectrograms = generate_quantized_maps_from_dict(spectrograms)
 
     # STEP 9: Generate the GLCMs
     # --------------------------------------------------------------------------
 
+    # `serialize` = False in all cases, we serialize in the next step if need be
     glcms_from_spectrogram = generate_glcms_from_dict(
         quantized_spectrograms, map_type="spectrogram",
-        serialize=True
+        serialize=False
     )
-
 
     glcms_from_mel_map = generate_glcms_from_dict(
         quantized_mel_maps, map_type="mel_map",
-        serialize=True
+        serialize=False
     )
 
+    # STEP 10: Drop the first level of GLCMs
+    # --------------------------------------------------------------------------
+    
+    glcms_from_spectrogram = drop_first_glcm_level_from_dict(
+        glcms_from_spectrogram, serialize=serialize
+    )
+
+    glcms_from_mel_map = drop_first_glcm_level_from_dict(
+        glcms_from_mel_map, serialize=serialize
+    )
+
+
+    # return transformed data dictionary
 
     glcms = {
         "mfcc": mfcc,
         "spectrogram": glcms_from_spectrogram, 
         "mel_map": glcms_from_mel_map
     }
-    
+
     return glcms
 
 

@@ -1,6 +1,15 @@
+import os
+import sys
+
 import numpy as np
 
 from skimage.feature.texture import greycomatrix
+
+from git_root import git_root
+
+sys.path.append(os.path.join(git_root(), "utils"))
+from utils import load_params
+
 
 
 def generate_glcm(array, distance, angle_in_deg):
@@ -18,10 +27,13 @@ def generate_glcm(array, distance, angle_in_deg):
             glcm[i, j] is the number of times that grey-level j occurs at a 
             distance `d` and at an angle `theta` from grey-level i. 
     """
+    params = load_params()
+
     glcm = greycomatrix(
         array, 
         distances=[distance], 
         angles=[angle_in_deg * (np.pi/180)],
+        levels=params["quantization"]["n_levels"],
         symmetric=False, 
         normed=False
     )

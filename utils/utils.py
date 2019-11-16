@@ -140,23 +140,6 @@ def quantize(array, n_levels):
     bin_limits = np.linspace(-80, 0, num=n_levels+1)
     bin_limits[-1] = epsilon
 
-    return np.digitize(array, bin_limits).astype(np.uint8)
-
-def capture_output(function, *args):
-    """This function captures the output of a function call by diverting the
-    `stdout` output momentarily
-    
-    Arguments:
-        function {function} -- function to call
-        args {} -- the value of arguments to feed the function
-    
-    Returns:
-        output {} -- the output of the function call if any
-    """
-
-    sys.stdout = io.StringIO()
-    output = function(*args)
-    sys.stdout = sys.__stdout__
-
-    return output
+    # levels should start at `0` for the `GLCM` downstream calculation
+    return np.digitize(array, bin_limits).astype(np.uint8) - 1
     

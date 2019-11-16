@@ -10,7 +10,7 @@ import librosa.display
 import IPython
 from git_root import git_root
 
-from utils import load_config, load_params, capture_output
+from utils import load_config, load_params
 
 
 
@@ -260,7 +260,7 @@ def display_random_audio_pieces(
                 )
 
 
-def plot_one_map(data_map, map_type):
+def plot_one_map(data_map, map_type, quantized=False):
     """This function plots one map (either a spectrogram or a mel map)
 
     Arguments:
@@ -268,6 +268,8 @@ def plot_one_map(data_map, map_type):
             genre)
         map_type {string} -- one of ('spectrogram', 'mel_map') for the type of
             map to print (affects the y-scale and text)
+        quantized {boolean} -- whether the input maps have already been
+            quantized or not (will handle the color scale)
     """
 
     params = load_params()
@@ -291,7 +293,9 @@ def plot_one_map(data_map, map_type):
         y_axis=y_axis
     )
     
-    plt.colorbar(format='%+2.0f dB') 
+    colorbar_format = "%i" if quantized else "%+2.0f dB"
+    
+    plt.colorbar(format=colorbar_format) 
 
 
 def plot_random_maps(maps, n_per_genre, map_type, seed=11):
@@ -389,11 +393,13 @@ def display_genre_min_counts(quantized_maps):
     """
     config = load_config()
 
-    # silence the `print`
-    unique_mins, _ = capture_output(
-        display_unique_extremes, quantized_maps, ""
-    )
-    
+    n_pieces = len(quantized_maps["train"])
+
+    mins = np.array([
+        quantized_maps["train"][i][1].min() for i in range(n_pieces)
+    ])
+    unique_mins = np.unique(mins)
+
     genre_min_count = {
         genre: np.zeros(len(unique_mins)) for genre in config["genres"]
     }
@@ -417,3 +423,127 @@ def display_genre_min_counts(quantized_maps):
             min_count_genre["value"]
         )
     plt.show()
+
+
+def plot_one_glcm(glcm, levels):
+    """This function plots one GLCM
+
+    Arguments:
+        glcm {tuple} -- a tuple of the form (file_name, numpy_glcm, piece_id,
+            genre)
+    """
+
+    plt.imshow(glcm[1], cmap="gray", interpolation="nearest")
+    plt.title(f"""
+    ---------------- GLCM ----------------
+    ------- Genre - {glcm[-1]} ------- 
+    ------- Track - {glcm[0]} -------
+    """
+    )
+    plt.xticks(np.arange(0, levels))
+    plt.yticks(np.arange(0, levels))
+    plt.show()
+
+
+def plot_random_GLCMs(glcms, n_per_genre, seed=11):
+    """This function prints some random GLCMs from a `glcms` dictionary for each
+    genre 
+
+    Arguments:
+        glcms {dict} -- a dictionary containing the tuples of glcms
+        n_per_genre {int} -- the number of glcms to plot per genre
+        seed {int} -- the random seed used for sampling
+    """
+
+    R = np.random.RandomState(seed)
+
+    config = load_config()
+    params = load_params()
+    _, genres, _, _, n_pieces_per_genre, _ = extract_from_config(
+        config, params
+    )
+
+    n_genres = len(genres)
+    
+    random_tracks = R.randint(
+        0, n_pieces_per_genre, (n_genres, n_per_genre)
+    )
+    
+    fig = plt.figure(figsize = (int(1.25 * n_genres), int(2.5 * n_genres)))
+    subplot = 0
+    for g in range(n_genres):
+        for t in range(n_per_genre):
+            subplot += 1
+            map_index = int(g * n_pieces_per_genre + random_tracks[g, t])
+            data_to_plot = glcms["train"][map_index]
+            ax = fig.add_subplot(n_genres, n_per_genre, subplot)
+            ax.set_title(f"-- {data_to_plot[-1]} --")
+            plt.imshow(data_to_plot[1], cmap="gray", interpolation="nearest")
+            ax.axis("off")
+            plt.tight_layout()   
+
+    plt.show()   
+
+
+def plot_one_mfcc(mfcc, time_id):
+    """This function plots a MFCC 
+    
+    Arguments:
+        mfcc {tuple} -- tuple of the form ('file_name', 'numpy_mfcc', 'genre')
+            where `numpy_mfcc` is of shape 
+            (n_submaps, n_mfcc, n_windows/n_submaps)
+        time_id {integer} -- the submap to plot
+    """
+
+    params = load_params()
+
+    plt.title(f"MFCC for {mfcc[0]}")
+    librosa.display.specshow(
+        mfcc[1][time_id], sr=params["sampling_rate"], x_axis="time"
+    )
+    plt.colorbar()
+
+    plt.show()
+
+
+def plot_random_mfccs(mfccs, n_per_genre, seed=11):
+    """This function prints some random MFCCs from a `mfccs` dictionary for each
+    genre 
+
+    Arguments:
+        mfccs {dict} -- a dictionary containing the tuples of mfccs
+        n_per_genre {int} -- the number of mfccs to plot per genre
+        seed {int} -- the random seed used for sampling
+    """
+
+    R = np.random.RandomState(seed)
+
+    config = load_config()
+    params = load_params()
+    _, genres, n_train_per_genre, _, _, sampling_rate = extract_from_config(
+        config, params
+    )
+
+    n_genres = len(genres)
+    
+    random_tracks = R.randint(
+        0, n_train_per_genre, (n_genres, n_per_genre)
+    )
+    
+    fig = plt.figure(figsize = (2* n_genres, int(2.5 * n_genres)))
+    subplot = 0
+    for g in range(n_genres):
+        for t in range(n_per_genre):
+            submap = R.randint(0, params["MFCC"]["n_submaps"])
+            subplot += 1
+            map_index = int(g * n_train_per_genre + random_tracks[g, t])
+            data_to_plot = mfccs["train"][map_index]
+            ax = fig.add_subplot(n_genres, n_per_genre, subplot)
+            ax.set_title(f"-- {data_to_plot[-1]} --")
+            librosa.display.specshow(
+                data_to_plot[1][submap], sr=sampling_rate, x_axis="time"
+            )
+            ax.axis("off")
+            plt.tight_layout()   
+
+    plt.show()  

@@ -11,11 +11,15 @@ from utils import read_in_data, generate_short_term_piece
 from utils import quantize, load_params, load_config
 
 
-def generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows):
+
+def generate_MFCC(
+    array, n_mfcc, frame_length, overlap, sampling_rate, n_windows
+):
     """This function generates a MFCC 
     from a numpy representation of mono .wav files
 
-    <---- WARNING: the number of windows computed is a FIXED parameter from the config file ---->
+    <---- WARNING: the number of windows computed is a FIXED parameter from the 
+    config file ---->
     
     Arguments:
         array {np.array} -- float np.array
@@ -23,19 +27,21 @@ def generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows
         overlap {float} -- in [0, 1) the fraction of overlap for each window
     """
 
-    window_length= int(frame_length*sampling_rate)
-    hop_length = int(window_length*(1-overlap))
+    window_length= int(frame_length * sampling_rate)
+    hop_length = int(window_length * (1 - overlap))
 
-    #We have to pad the array before computing the mfcc
-    length_needed = int(n_windows*hop_length) + window_length
+    # we have to pad the array before computing the mfcc
+    length_needed = int(n_windows * hop_length) + window_length
 
 
-    #Number of values we need to add to the vector
-    padding = hop_length*n_windows+window_length - 1 - array.shape[0]
+    # number of values we need to add to the vector
+    padding = hop_length * n_windows + window_length - 1 - array.shape[0]
 
     if(array.shape[0] < length_needed):
-        #We need to pad the array to account for the last incomplete window
-        padded_array = np.pad(array, (0,padding), mode='constant', constant_values=(0,0))
+        # we need to pad the array to account for the last incomplete window
+        padded_array = np.pad(
+            array, (0,padding), mode='constant', constant_values=(0,0)
+        )
     else:
         padded_array = array[0:length_needed-1]
 
@@ -47,6 +53,7 @@ def generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows
                                 hop_length=hop_length)
 
     return mfcc
+
 
 
 if __name__=="__main__":
