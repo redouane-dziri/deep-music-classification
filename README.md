@@ -11,7 +11,6 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 ## Timeline
 
-- by 11/14: finish creating the features, explore the features created and get a feel of the complexity of the classification problem
 - by 11/21: write the model and debug training on the sample data (fit until overfit, and try to extract as much info as possible from the data)
 - by 11/28: train models on whole data, monitor, tune (also using keras-tuner?), save the models
 - by 12/05: short presentation of what was accomplished and what’s left, start writing report
@@ -25,6 +24,8 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 - pre-processed the data according to the methods set forward in the paper
 - explored the audio data
 - explored the pre-processed data
+- created the different maps (spectrograms, mel-maps, time-MFCC, quantized versions of the two first, GLCMs with different angles)
+- explored the features
 
 
 
