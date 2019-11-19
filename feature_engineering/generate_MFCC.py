@@ -12,9 +12,7 @@ from utils import quantize, load_params, load_config
 
 
 
-def generate_MFCC(
-    array, n_mfcc, frame_length, overlap, sampling_rate, n_windows
-):
+def generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows):
     """This function generates a MFCC 
     from a numpy representation of mono .wav files
 
@@ -54,7 +52,24 @@ def generate_MFCC(
 
     return mfcc
 
+def generate_formatted_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows):
+    """This function generates a MFCC from a numpy representation of mono .wav files
+    in the correct format for the neural net.
+    In addition to generating the mfcc, the mfcc is also splitted across axis=1,
+    and turned into a 3D array.
 
+    <---- WARNING: the number of windows computed is a FIXED parameter from the 
+    config file ---->
+    
+    Arguments:
+        array {np.array} -- float np.array
+        frame_length {int} -- the number of samples in each analysis window
+        overlap {float} -- in [0, 1) the fraction of overlap for each window
+    """
+
+    mfcc = generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows)
+    mfcc_formatted = np.array(np.split(mfcc,30,axis=1))
+    return mfcc_formatted
 
 if __name__=="__main__":
     params = load_params()
@@ -71,6 +86,17 @@ if __name__=="__main__":
                         overlap=params["MFCC"]["overlap"],
                         sampling_rate=params["sampling_rate"],
                         n_windows=params["MFCC"]["n_windows"])
+
+    #Output format should be (40, 1500)
     print(x.shape)
-    y = np.split(x,30, axis=1)
-    print(np.array(y).shape)
+
+    y = generate_formatted_MFCC(sample_array,
+                        n_mfcc =  params["MFCC"]["n_mfcc"],
+                        frame_length=params["MFCC"]["frame_length_in_s"], 
+                        overlap=params["MFCC"]["overlap"],
+                        sampling_rate=params["sampling_rate"],
+                        n_windows=params["MFCC"]["n_windows"])
+
+    #Output format should be (30, 40, 50)
+    print(y.shape)
+

@@ -314,10 +314,8 @@ def generate_MFCC_from_dict(data, serialize=False):
 
     for split in mfcc:
         mfcc[split] = [
-            (
-                piece[0],
-                np.stack(
-                    np.split(
+            (piece[0],
+                    np.array(np.split(
                         generate_MFCC(
                             piece[1], 
                             n_mfcc =  params["MFCC"]["n_mfcc"],
@@ -328,10 +326,8 @@ def generate_MFCC_from_dict(data, serialize=False):
                         ), 
                         params["MFCC"]["n_submaps"], 
                         axis=1
-                    ),
-                    axis=0
-                ) if not serialize else
-                np.split(
+                    )).tolist() if serialize else
+                    np.split(
                     generate_MFCC(
                         piece[1], 
                         n_mfcc =  params["MFCC"]["n_mfcc"],
@@ -340,9 +336,8 @@ def generate_MFCC_from_dict(data, serialize=False):
                         sampling_rate=params["sampling_rate"],
                         n_windows=params["MFCC"]["n_windows"]
                     )
-                ), 
-                piece[2]
-            )
+                ),
+                    piece[2])
             for piece in data[split]
         ]
     
@@ -388,13 +383,13 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
 
     data = pad_from_dict(data)
 
-
     # STEP 4: generate mfcc from the data
     # We need to do that before generating the short term pieces 
     # (because the process is different for mcff)
     # --------------------------------------------------------------------------
 
     mfcc = generate_MFCC_from_dict(data, serialize=serialize)
+    print(len(mfcc['train']))
 
 
     # STEP 5: Cut the data into smaller chunks
@@ -418,6 +413,7 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
     # --------------------------------------------------------------------------
 
     quantized_mel_maps = generate_quantized_maps_from_dict(mel_maps)
+
     quantized_spectrograms = generate_quantized_maps_from_dict(spectrograms)
 
     # STEP 9: Generate the GLCMs
@@ -428,6 +424,7 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
         quantized_spectrograms, map_type="spectrogram",
         serialize=False
     )
+
 
     glcms_from_mel_map = generate_glcms_from_dict(
         quantized_mel_maps, map_type="mel_map",
@@ -461,21 +458,25 @@ if __name__ == "__main__":
 
     print("Preprocessing the data")
     #Checking the preprocessing functions
-    x = preprocess_data(serialize=True)               
+    x = preprocess_data(serialize=True)
+
+    print(len(x['mfcc']['train']))
+    print(len(x['spectrogram'][0]['train']))     
+    print(len(x['mel_map'][0]['train']))             
 
     print("Dumping the mfcc data")
     output_dir = git_root("data", "pipeline_output")
 
     #Dumping the result to a json file
-    with open(os.path.join(output_dir, "test_mfcc.json"), "w") as outfile:
-        json.dump(x["mfcc"], outfile)
+    #with open(os.path.join(output_dir, "test_mfcc.json"), "w") as outfile:
+        #json.dump(x["mfcc"], outfile)
 
     print("Dumping the spectrogram data")
     #Dumping the result to a json file
-    with open(os.path.join(output_dir, "test_spectrogram.json"), "w") as outfile:
-        json.dump(x["spectrogram"], outfile)
+    #with open(os.path.join(output_dir, "test_spectrogram.json"), "w") as outfile:
+        #json.dump(x["spectrogram"], outfile)
 
     print("Dumping the mel map data")
     #Dumping the result to a json file
-    with open(os.path.join(output_dir, "test_mel_map.json"), "w") as outfile:
-        json.dump(x["mel_map"], outfile)
+    #with open(os.path.join(output_dir, "test_mel_map.json"), "w") as outfile:
+        #json.dump(x["mel_map"], outfile)

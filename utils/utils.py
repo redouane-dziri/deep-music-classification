@@ -83,6 +83,8 @@ def read_in_data(sampling_rate, sample_data=True):
     train_records = train_metadata.apply(load_file, axis=1).tolist()
     test_records = test_metadata.apply(load_file, axis=1).tolist()
 
+    print(len(train_records))
+
     return {'train': train_records, 'test': test_records}
 
 
