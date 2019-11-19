@@ -21,7 +21,7 @@ def fetch_data(type='melmap', angle=0):
     config = load_config()
 
     ### Read data from Google cloud storage
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/arnaudstiegler/Desktop/Divers/W4111-e02930f7e70f.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/arnaud.stiegler/Desktop/Divers/adl-hw4-675afec62d41.json"
     storage_client = storage.Client("Music-Genre-Classification")
     bucket = storage_client.get_bucket("deep-music-classification")
 

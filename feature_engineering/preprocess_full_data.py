@@ -18,7 +18,7 @@ from utils import load_config
 config = load_config()
 
 ### Read data from Google cloud storage
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/arnaudstiegler/Desktop/Divers/W4111-e02930f7e70f.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/arnaud.stiegler/Desktop/Divers/adl-hw4-675afec62d41.json"
 storage_client = storage.Client("Music-Genre-Classification")
 bucket = storage_client.get_bucket("deep-music-classification")
 
@@ -75,39 +75,58 @@ print("Preprocessing the data")
 #We preprocess the data
 x = preprocess_data(pre_loaded_data= data, serialize=True)
 
+output_dir = git_root("data", "pipeline_output")
+
+train_test_list = ['train', 'test']
+
 #We dump the data
 print("Dumping the spectrogram data")
+
+spectrogram_dir_path = os.path.join(git_root(),'data','preprocessed_data','spectrogram')
+
+try:
+    os.mkdir(spectrogram_dir_path)
+except:
+    pass
 
 deg_list = config['feature_engineering']['GLCM']['spectrogram']["angles_in_deg"]
 for i in range(len(deg_list)):
 
-    filename = 'data_spectrogram_angle_{}.json'.format(deg_list[i])
-    print(filename)
-    #Dumping the result to a json file
-    with open(os.path.join(git_root(),'data','preprocessed_data',filename),'w') as outfile:
-        json.dump(x['spectrogram'][i], outfile)
+    for elem in train_test_list:
+        filename = 'data_spectrogram_angle_{}_{}.json'.format(deg_list[i], elem)
+        print(filename)
 
-    #Loading the data to google storage
-    blob_out = bucket.blob(os.path.join("data","preprocessed_data","spectrogram",filename))
-    blob_out.upload_from_filename(filename=os.path.join(git_root(),'data','preprocessed_data',filename))
+        #Dumping the result to a json file
+        with open(os.path.join(spectrogram_dir_path,filename),'w') as outfile:
+            json.dump(x['spectrogram'][i], outfile)
 
+        #Loading the data to google storage
+        blob_out = bucket.blob(os.path.join("data","preprocessed_data","spectrogram",filename))
+        blob_out.upload_from_filename(filename=os.path.join(spectrogram_dir_path,filename))
 
 
 print("Dumping the mel map data")
 
+mel_map_dir_path = os.path.join(git_root(),'data','preprocessed_data','mel_map')
+
+try:
+    os.mkdir(mel_map_dir_path)
+except:
+    pass
+
 deg_list = config['feature_engineering']['GLCM']['mel_map']["angles_in_deg"]
 for i in range(len(deg_list)):
 
-    filename = 'data_mel_map_angle_{}.json'.format(deg_list[i])
-    print(filename)
+    for elem in train_test_list:
+        filename = 'data_mel_map_angle_{}_{}.json'.format(deg_list[i], elem)
+        print(filename)
 
-    #Dumping the result to a json file
-    with open(os.path.join(git_root(),'data','preprocessed_data',filename),'w') as outfile:
-        json.dump(x['mel_map'][i], outfile)
-
-    #Loading the data to google storage
-    blob_out = bucket.blob(os.path.join("data","preprocessed_data","mel_map",filename))
-    blob_out.upload_from_filename(filename=os.path.join(git_root(),'data','preprocessed_data',filename))
+        #Dumping the result to a json file
+        with open(os.path.join(mel_map_dir_path,filename),'w') as outfile:
+            json.dump(x['mel_map'][i][elem], outfile)
+        #Loading the data to google storage
+        blob_out = bucket.blob(os.path.join("data","preprocessed_data","mel_map",filename))
+        blob_out.upload_from_filename(filename=os.path.join(mel_map_dir_path,filename))
 
 
 #Delete the temporary folder

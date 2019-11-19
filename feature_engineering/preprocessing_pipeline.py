@@ -389,7 +389,6 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
     # --------------------------------------------------------------------------
 
     mfcc = generate_MFCC_from_dict(data, serialize=serialize)
-    print(len(mfcc['train']))
 
 
     # STEP 5: Cut the data into smaller chunks
@@ -456,27 +455,57 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
 
 if __name__ == "__main__":
 
+    config = load_config()
+
     print("Preprocessing the data")
     #Checking the preprocessing functions
-    x = preprocess_data(serialize=True)
+    x = preprocess_data(serialize=True)            
 
-    print(len(x['mfcc']['train']))
-    print(len(x['spectrogram'][0]['train']))     
-    print(len(x['mel_map'][0]['train']))             
-
-    print("Dumping the mfcc data")
     output_dir = git_root("data", "pipeline_output")
 
-    #Dumping the result to a json file
-    #with open(os.path.join(output_dir, "test_mfcc.json"), "w") as outfile:
-        #json.dump(x["mfcc"], outfile)
+    train_test_list = ['train', 'test']
 
+    #We dump the data
     print("Dumping the spectrogram data")
-    #Dumping the result to a json file
-    #with open(os.path.join(output_dir, "test_spectrogram.json"), "w") as outfile:
-        #json.dump(x["spectrogram"], outfile)
+
+    spectrogram_dir_path = os.path.join(git_root(),'data','preprocessed_data','spectrogram')
+
+    try:
+        os.mkdir(spectrogram_dir_path)
+    except:
+        pass
+
+    deg_list = config['feature_engineering']['GLCM']['spectrogram']["angles_in_deg"]
+    for i in range(len(deg_list)):
+
+        for elem in train_test_list:
+            filename = 'data_spectrogram_angle_{}_{}.json'.format(deg_list[i], elem)
+            print(filename)
+
+            #Dumping the result to a json file
+            with open(os.path.join(spectrogram_dir_path,filename),'w') as outfile:
+                json.dump(x['spectrogram'][i], outfile)
+
 
     print("Dumping the mel map data")
-    #Dumping the result to a json file
-    #with open(os.path.join(output_dir, "test_mel_map.json"), "w") as outfile:
-        #json.dump(x["mel_map"], outfile)
+
+    mel_map_dir_path = os.path.join(git_root(),'data','preprocessed_data','mel_map')
+
+    try:
+        os.mkdir(mel_map_dir_path)
+    except:
+        pass
+
+    deg_list = config['feature_engineering']['GLCM']['mel_map']["angles_in_deg"]
+    for i in range(len(deg_list)):
+
+        for elem in train_test_list:
+            filename = 'data_mel_map_angle_{}_{}.json'.format(deg_list[i], elem)
+            print(filename)
+
+            #Dumping the result to a json file
+            with open(os.path.join(mel_map_dir_path,filename),'w') as outfile:
+                json.dump(x['mel_map'][i][elem], outfile)
+
+
+
