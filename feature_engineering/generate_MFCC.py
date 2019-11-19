@@ -76,6 +76,7 @@ def generate_formatted_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate,
     return mfcc_formatted
 
 if __name__=="__main__":
+    
     params = load_params()
     config = load_config()
     data = read_in_data(

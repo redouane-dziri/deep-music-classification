@@ -1,4 +1,4 @@
-from fetch_data import fetch_data 
+from fetch_data import fetch_data_local
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, GlobalAveragePooling2D, AveragePooling2D, Dense
@@ -10,8 +10,8 @@ Template script for loading and training on the GLCMs
 The network only works for mel_maps and spectrograms
 '''
 
-train_df = fetch_data(map_type='mel_map', train=True, angle='0')
-test_df = fetch_data(map_type='mel_map', train=False, angle='0')
+train_df = fetch_data_local(map_type='mel_map', train=True, angle='0')
+test_df = fetch_data_local(map_type='mel_map', train=False, angle='0')
 
 #Generate the set of labels
 label_names = set([genre for genre in train_df['genre']])
