@@ -23,6 +23,8 @@ def generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows
         array {np.array} -- float np.array
         frame_length {int} -- the number of samples in each analysis window
         overlap {float} -- in [0, 1) the fraction of overlap for each window
+
+    returns: np.array with dimensions (n_mfcc, t)
     """
 
     window_length= int(frame_length * sampling_rate)
@@ -65,6 +67,8 @@ def generate_formatted_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate,
         array {np.array} -- float np.array
         frame_length {int} -- the number of samples in each analysis window
         overlap {float} -- in [0, 1) the fraction of overlap for each window
+
+    returns: np.array with dimensions (nb_mfcc,t,n_windows)
     """
 
     mfcc = generate_MFCC(array, n_mfcc, frame_length, overlap, sampling_rate, n_windows)

@@ -465,6 +465,23 @@ if __name__ == "__main__":
 
     train_test_list = ['train', 'test']
 
+    print("Dumping the MFCC")
+
+    mfcc_dir_path = os.path.join(git_root(),'data','preprocessed_data','mfcc')
+
+    try:
+        os.mkdir(mfcc_dir_path)
+    except:
+        pass
+
+    for elem in train_test_list:
+            filename = 'data_mfcc_{}.json'.format(elem)
+            print(filename)
+
+            #Dumping the result to a json file
+            with open(os.path.join(mfcc_dir_path,filename),'w') as outfile:
+                json.dump(x['mfcc'][elem], outfile)
+
     #We dump the data
     print("Dumping the spectrogram data")
 
@@ -484,7 +501,7 @@ if __name__ == "__main__":
 
             #Dumping the result to a json file
             with open(os.path.join(spectrogram_dir_path,filename),'w') as outfile:
-                json.dump(x['spectrogram'][i], outfile)
+                json.dump(x['spectrogram'][i][elem], outfile)
 
 
     print("Dumping the mel map data")

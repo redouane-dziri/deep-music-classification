@@ -79,6 +79,27 @@ output_dir = git_root("data", "pipeline_output")
 
 train_test_list = ['train', 'test']
 
+print("Dumping the MFCC")
+
+    mfcc_dir_path = os.path.join(git_root(),'data','preprocessed_data','mfcc')
+
+    try:
+        os.mkdir(mfcc_dir_path)
+    except:
+        pass
+
+    for elem in train_test_list:
+            filename = 'data_mfcc_{}.json'.format(elem)
+            print(filename)
+
+            #Dumping the result to a json file
+            with open(os.path.join(spectrogram_dir_path,filename),'w') as outfile:
+                json.dump(x['mfcc'][elem], outfile)
+
+            #Loading the data to google storage
+            blob_out = bucket.blob(os.path.join("data","preprocessed_data","mfcc",filename))
+            blob_out.upload_from_filename(filename=os.path.join(mfcc_dir_path,filename))
+
 #We dump the data
 print("Dumping the spectrogram data")
 
