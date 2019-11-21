@@ -1,3 +1,54 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e141d02a4e6fd325857b656c3d99ef4cb521b0ee3be76c0953480101a3b00874
-size 1231
+{
+    "genres": [
+        "blues", 
+        "classical", 
+        "country", 
+        "disco", 
+        "hiphop", 
+        "jazz", 
+        "metal", 
+        "pop", 
+        "reggae", 
+        "rock"
+    ],
+    "train_percent": 90,
+    "feature_engineering":{
+        "sampling_rate": 22050, 
+        "divide": {
+            "number_pieces": 14,
+            "piece_length_in_s": 4, 
+            "overlap_in_s": 2,
+            "min_piece_length": 661504
+        },
+        "mel_map": {
+            "n_mels": 40,
+            "frame_length_in_s": 0.125,
+            "overlap": 0
+        },
+        "spectrogram": {
+            "frame_length_in_s": 0.186,
+            "overlap": 0.5
+        },
+        "quantization": {
+            "n_levels": 16
+        },
+        "GLCM": {
+            "distance": 1,
+            "spectrogram": {
+                "angles_in_deg": [0]
+            },
+            "mel_map": {
+                "angles_in_deg": [0, 45, 90, 135]
+            }
+        },
+        "MFCC": {
+            "frame_length_in_s": 0.04,
+            "overlap": 0.5,
+            "n_mfcc": 40,
+            "n_submaps": 30,
+            "n_windows": 1500
+        }
+    },
+    "using_sample_data": true,
+    "sample_data_per_genre": 20
+}
