@@ -12,13 +12,15 @@ from preprocessing_pipeline import preprocess_data
 
 #Load the utils module
 sys.path.append(os.path.join(git_root(),'utils'))
-from utils import load_config
+from utils import load_config, load_credentials
 
 #Load the config file
 config = load_config()
 
+credentials = load_credentials()
+
 ### Read data from Google cloud storage
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/arnaud.stiegler/Desktop/Divers/adl-hw4-675afec62d41.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials['PATH']
 storage_client = storage.Client("Music-Genre-Classification")
 bucket = storage_client.get_bucket("deep-music-classification")
 
