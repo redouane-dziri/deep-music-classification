@@ -11,6 +11,17 @@ import librosa
 from git_root import git_root
 
 
+def load_credentials():
+    """Helper function to read the credentials from the credentials.json file
+
+    Returns:
+        data {dict} containing whatever parameters are in the config file
+    """
+    with open(git_root("credentials.json"), "r") as credentials_file:
+            credentials = json.load(credentials_file)
+            
+    return credentials
+
 
 def load_params():
     """Helper function to read the parameters from the config file
