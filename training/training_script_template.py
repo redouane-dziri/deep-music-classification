@@ -28,8 +28,8 @@ label_to_idx = dict((name, index) for index, name in enumerate(label_names))
 #(Inelegant way of) regenerating the np.array from the maps
 samples = []
 labels = []
-for indx, row in train_df.iterrows():
-    samples.append(np.array(row['maps']))
+for _, row in train_df.iterrows():
+    samples.append(np.array(row['map']))
     labels.append(label_to_idx[row['genre']])
 
 

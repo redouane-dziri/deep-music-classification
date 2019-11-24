@@ -9,7 +9,9 @@ from git_root import git_root
 
 #Load the utils module
 sys.path.append(git_root("utils"))
-from utils import load_config
+from utils import load_config, load_credentials, load_params
+
+import tensorflow as tf
 
 
 
@@ -34,7 +36,8 @@ def fetch_data_cloud(map_type, angle, train=True):
     """
 
     ### Read data from Google cloud storage
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/arnaud.stiegler/Desktop/Divers/adl-hw4-675afec62d41.json"
+    credentials = load_credentials()
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials['PATH']
     storage_client = storage.Client("Music-Genre-Classification")
     bucket = storage_client.get_bucket("deep-music-classification")
 
@@ -141,13 +144,17 @@ def to_numpy_arrays(df):
             maps and their associated labels
     """
     config = load_config()
+    params = load_params()
+
     label_names = config["genres"]
+    input_dim = params["quantization"]["n_levels"] - 1
+
     label_to_idx = dict((name, index) for index, name in enumerate(label_names))
 
     samples = []
     labels = []
     for _, row in df.iterrows():
-        samples.append(np.array(row['maps']))
+        samples.append(np.array(row['map']).reshape(input_dim,input_dim,1))
         labels.append(label_to_idx[row['genre']])
     
     return samples, labels
