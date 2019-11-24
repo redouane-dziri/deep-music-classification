@@ -1,13 +1,18 @@
-from fetch_data import fetch_data_local
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, GlobalAveragePooling2D, AveragePooling2D, Dense
+
 from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Conv2D, GlobalAveragePooling2D
+from tensorflow.keras.layers import AveragePooling2D, Dense
+
+from fetch_data import fetch_data_local
+
+
 
 '''
 Template script for loading and training on the GLCMs
 
-The network only works for mel_maps and spectrograms
+THIS IS ONLY FOR GLCMs, NOT MFCCs
 '''
 
 train_df = fetch_data_local(map_type='mel_map', train=True, angle='0')
