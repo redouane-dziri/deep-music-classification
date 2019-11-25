@@ -11,8 +11,7 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 ## Timeline
 
-- by 12/05: short presentation of what was accomplished and what’s left, start writing report
-- by 12/12: evaluate in detail like in paper, plot graph like theirs
+- by 12/05: short presentation of what was accomplished and what’s left, start writing report, evaluate in detail like in paper, plot graph like theirs
 - by 12/20: finish report, demo, presentation
 
 ## Done
