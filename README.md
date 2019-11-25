@@ -11,7 +11,6 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 
 ## Timeline
 
-- by 11/28: train models on whole data, monitor, tune (also using keras-tuner?), save the models
 - by 12/05: short presentation of what was accomplished and what’s left, start writing report
 - by 12/12: evaluate in detail like in paper, plot graph like theirs
 - by 12/20: finish report, demo, presentation
@@ -26,6 +25,7 @@ Data: [GTZAN dataset](http://marsyas.info/downloads/datasets.html)
 - created the different maps (spectrograms, mel-maps, time-MFCC, quantized versions of the two first, GLCMs with different angles)
 - explored the features
 - wrote the models and debugged training on a batch of data (fit until overfit)
+- trained the models on whole data for 400 epochs, monitored and saved them
 
 
 
