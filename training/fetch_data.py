@@ -15,7 +15,7 @@ import tensorflow as tf
 
 
 
-def fetch_data_cloud(map_type, angle, train=True):
+def fetch_data_cloud(map_type, angle=None, train=True):
     """This function to fetches data from json files in google cloud storage and 
     returns a pandas DataFrame
 
@@ -75,7 +75,7 @@ def fetch_data_cloud(map_type, angle, train=True):
     return df
 
 
-def fetch_data_local(map_type, angle, train=True):
+def fetch_data_local(map_type, angle=None, train=True):
     """
     This function to fetches data from json files locally and returns a pandas 
     DataFrame
@@ -116,7 +116,7 @@ def fetch_data_local(map_type, angle, train=True):
             "data_{}_angle_{}_{}.json".format(map_type, angle, set_type)
         )
 
-    print("Fetching: {}".format(file_name))
+    print("Fetching: {}".format(os.path.basename(file_name)))
 
     df = pd.read_json(file_name)  
 
@@ -128,9 +128,9 @@ def fetch_data_local(map_type, angle, train=True):
     return df
 
 
-def to_numpy_arrays(df):
+def to_numpy_arrays(df, mfcc=False):
     """This function takes in a dataframe with columns 
-    []'filename', 'maps', 'genre'] like one output by `fetch_data_local` or
+    ['filename', 'maps', 'genre'] like one output by `fetch_data_local` or
     `fetch_data_cloud` and returns two np arrays `samples` and `labels`
     containing, respectively, the numpy maps and their associated labels
     
@@ -138,6 +138,7 @@ def to_numpy_arrays(df):
         df {pd DataFrame} -- with columns ['filename', 'map', 'genre'] where 
             'filename' is the name of the track, 'map' is the numeric numpy 
             array representation, 'genre' is the track genre 
+        mfcc {boolean} -- default is False, whether the maps are MFCC
     
     Returns:
         samples, labels {(list, list)} -- list of numpy arrays containing the
@@ -147,14 +148,26 @@ def to_numpy_arrays(df):
     params = load_params()
 
     label_names = config["genres"]
-    input_dim = params["quantization"]["n_levels"] - 1
 
+    if not mfcc:
+        input_dim_1 = params["quantization"]["n_levels"] - 1
+        input_dim_2 = input_dim_1
+        input_dim_3 = 1
+    else:
+        input_dim_1 = params["MFCC"]["n_submaps"]
+        input_dim_2 = params["MFCC"]["n_windows"] // input_dim_1
+        input_dim_3 = params["MFCC"]["n_mfcc"]
+        
     label_to_idx = dict((name, index) for index, name in enumerate(label_names))
 
     samples = []
     labels = []
     for _, row in df.iterrows():
-        samples.append(np.array(row['map']).reshape(input_dim,input_dim,1))
+        to_add = np.array(row['maps']).reshape(
+            input_dim_1, input_dim_2, input_dim_3
+        )
+        to_add = np.swapaxes(to_add, 0, -1) if mfcc else to_add
+        samples.append(to_add)
         labels.append(label_to_idx[row['genre']])
     
     return samples, labels

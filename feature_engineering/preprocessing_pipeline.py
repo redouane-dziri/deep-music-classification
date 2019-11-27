@@ -390,7 +390,6 @@ def preprocess_data(pre_loaded_data=None, serialize=False):
 
     mfcc = generate_MFCC_from_dict(data, serialize=serialize)
 
-
     # STEP 5: Cut the data into smaller chunks
     # --------------------------------------------------------------------------
 
@@ -467,7 +466,11 @@ if __name__ == "__main__":
 
     print("Dumping the MFCC")
 
-    mfcc_dir_path = os.path.join(git_root(),'data','preprocessed_data','mfcc')
+    full_or_sample = "full" if config["using_sample_data"] else "sample"
+
+    mfcc_dir_path = git_root(
+        "data", f"preprocessed_data_{full_or_sample}", "mfcc"
+    )
 
     try:
         os.mkdir(mfcc_dir_path)
@@ -479,13 +482,15 @@ if __name__ == "__main__":
             print(filename)
 
             #Dumping the result to a json file
-            with open(os.path.join(mfcc_dir_path,filename),'w') as outfile:
+            with open(os.path.join(mfcc_dir_path,filename),'w+') as outfile:
                 json.dump(x['mfcc'][elem], outfile)
-
+    
     #We dump the data
     print("Dumping the spectrogram data")
 
-    spectrogram_dir_path = os.path.join(git_root(),'data','preprocessed_data','spectrogram')
+    spectrogram_dir_path = git_root(
+        "data", f"preprocessed_data_{full_or_sample}", "spectrogram"
+    )
 
     try:
         os.mkdir(spectrogram_dir_path)
@@ -506,7 +511,9 @@ if __name__ == "__main__":
 
     print("Dumping the mel map data")
 
-    mel_map_dir_path = os.path.join(git_root(),'data','preprocessed_data','mel_map')
+    mel_map_dir_path = git_root(
+        "data", f"preprocessed_data_{full_or_sample}", "mel_map"
+    )
 
     try:
         os.mkdir(mel_map_dir_path)
@@ -523,6 +530,4 @@ if __name__ == "__main__":
             #Dumping the result to a json file
             with open(os.path.join(mel_map_dir_path,filename),'w') as outfile:
                 json.dump(x['mel_map'][i][elem], outfile)
-
-
-
+    

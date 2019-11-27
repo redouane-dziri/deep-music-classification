@@ -9,8 +9,8 @@ class AffineScalar(layers.Layer):
         layers {[type]} -- [description]
     """
 
-    def __init__(self):
-        super(AffineScalar, self).__init__()
+    def __init__(self, **kwargs):
+        super(AffineScalar, self).__init__(**kwargs)
         self.w = self.add_weight(
             shape=(1,),
             initializer="random_normal",
