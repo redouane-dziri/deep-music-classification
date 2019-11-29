@@ -1,0 +1,17 @@
+{
+    "mfcc": {
+        "accuracy": 0.16,
+        "class_precision": {
+            "blues": 0.0,
+            "classical": 0.2,
+            "country": 0.0,
+            "disco": 0.0,
+            "hiphop": 0.0,
+            "jazz": 0.0,
+            "metal": 0.14285714285714285,
+            "pop": 0.16666666666666666,
+            "reggae": 0.15789473684210525,
+            "rock": 0.1590909090909091
+        }
+    }
+}
