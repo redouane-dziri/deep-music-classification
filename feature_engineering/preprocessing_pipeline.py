@@ -314,20 +314,9 @@ def generate_MFCC_from_dict(data, serialize=False):
 
     for split in mfcc:
         mfcc[split] = [
-            (piece[0],
-                    np.array(np.split(
-                        generate_MFCC(
-                            piece[1], 
-                            n_mfcc =  params["MFCC"]["n_mfcc"],
-                            frame_length=params["MFCC"]["frame_length_in_s"], 
-                            overlap=params["MFCC"]["overlap"],
-                            sampling_rate=params["sampling_rate"],
-                            n_windows=params["MFCC"]["n_windows"]
-                        ), 
-                        params["MFCC"]["n_submaps"], 
-                        axis=1
-                    )).tolist() if serialize else
-                    np.split(
+            (
+                piece[0],
+                np.split(
                     generate_MFCC(
                         piece[1], 
                         n_mfcc =  params["MFCC"]["n_mfcc"],
@@ -335,9 +324,26 @@ def generate_MFCC_from_dict(data, serialize=False):
                         overlap=params["MFCC"]["overlap"],
                         sampling_rate=params["sampling_rate"],
                         n_windows=params["MFCC"]["n_windows"]
+                    ), 
+                    params["MFCC"]["n_submaps"], 
+                    axis=1
+                ) if serialize else
+                np.array(
+                    np.split(
+                        generate_MFCC(
+                            piece[1], 
+                            n_mfcc =  params["MFCC"]["n_mfcc"],
+                            frame_length=params["MFCC"]["frame_length_in_s"], 
+                            overlap=params["MFCC"]["overlap"],
+                            sampling_rate=params["sampling_rate"],
+                            n_windows=params["MFCC"]["n_windows"]
+                        ),
+                        params["MFCC"]["n_submaps"], 
+                        axis=1
                     )
                 ),
-                    piece[2])
+                piece[2]
+            )
             for piece in data[split]
         ]
     
