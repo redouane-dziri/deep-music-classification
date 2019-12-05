@@ -316,15 +316,17 @@ def generate_MFCC_from_dict(data, serialize=False):
         mfcc[split] = [
             (
                 piece[0],
-                np.split(
-                    generate_MFCC(
-                        piece[1], 
-                        n_mfcc =  params["MFCC"]["n_mfcc"],
-                        frame_length=params["MFCC"]["frame_length_in_s"], 
-                        overlap=params["MFCC"]["overlap"],
-                        sampling_rate=params["sampling_rate"],
-                        n_windows=params["MFCC"]["n_windows"]
-                    ), 
+                np.array(
+                    np.split(
+                        generate_MFCC(
+                            piece[1], 
+                            n_mfcc =  params["MFCC"]["n_mfcc"],
+                            frame_length=params["MFCC"]["frame_length_in_s"], 
+                            overlap=params["MFCC"]["overlap"],
+                            sampling_rate=params["sampling_rate"],
+                            n_windows=params["MFCC"]["n_windows"]
+                        )
+                ).tolist(), 
                     params["MFCC"]["n_submaps"], 
                     axis=1
                 ) if serialize else
