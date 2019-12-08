@@ -1,0 +1,56 @@
+{
+    "stacked_final": {
+        "accuracy": 0.36,
+        "class_precision": {
+            "blues": 0.6666666666666666,
+            "classical": 1.0,
+            "country": 0.3181818181818182,
+            "disco": 0.10526315789473684,
+            "hiphop": 0.0,
+            "jazz": 0.6363636363636364,
+            "metal": 0.0,
+            "pop": 0.5,
+            "reggae": 0.3333333333333333,
+            "rock": 0.25
+        },
+        "class_recall": {
+            "blues": 0.2,
+            "classical": 0.7,
+            "country": 0.7,
+            "disco": 0.2,
+            "hiphop": 0.0,
+            "jazz": 0.7,
+            "metal": 0.0,
+            "pop": 0.1,
+            "reggae": 0.8,
+            "rock": 0.2
+        }
+    },
+    "stacked_architecture": {
+        "accuracy": 0.36,
+        "class_precision": {
+            "blues": 0.6666666666666666,
+            "classical": 1.0,
+            "country": 0.3181818181818182,
+            "disco": 0.10526315789473684,
+            "hiphop": 0.0,
+            "jazz": 0.6363636363636364,
+            "metal": 0.0,
+            "pop": 0.5,
+            "reggae": 0.3333333333333333,
+            "rock": 0.25
+        },
+        "class_recall": {
+            "blues": 0.2,
+            "classical": 0.7,
+            "country": 0.7,
+            "disco": 0.2,
+            "hiphop": 0.0,
+            "jazz": 0.7,
+            "metal": 0.0,
+            "pop": 0.1,
+            "reggae": 0.8,
+            "rock": 0.2
+        }
+    }
+}

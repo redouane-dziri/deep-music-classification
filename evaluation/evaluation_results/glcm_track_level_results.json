@@ -13,6 +13,18 @@
                 "pop": 0.34782608695652173,
                 "reggae": 0.4666666666666667,
                 "rock": 0.09090909090909091
+            },
+            "class_recall": {
+                "blues": 0.1,
+                "classical": 0.9,
+                "country": 0.4,
+                "disco": 0.3,
+                "hiphop": 0.1,
+                "jazz": 0.7,
+                "metal": 0.9,
+                "pop": 0.8,
+                "reggae": 0.7,
+                "rock": 0.1
             }
         }
     },
@@ -30,6 +42,18 @@
                 "pop": 0.3076923076923077,
                 "reggae": 0.42857142857142855,
                 "rock": 0.25
+            },
+            "class_recall": {
+                "blues": 0.5,
+                "classical": 0.9,
+                "country": 0.4,
+                "disco": 0.2,
+                "hiphop": 0.1,
+                "jazz": 0.6,
+                "metal": 1.0,
+                "pop": 0.8,
+                "reggae": 0.6,
+                "rock": 0.1
             }
         },
         "45": {
@@ -44,6 +68,18 @@
                 "metal": 0.7692307692307693,
                 "pop": 0.36,
                 "reggae": 0.4166666666666667,
+                "rock": 0.1
+            },
+            "class_recall": {
+                "blues": 0.1,
+                "classical": 0.8,
+                "country": 0.1,
+                "disco": 0.1,
+                "hiphop": 0.1,
+                "jazz": 0.5,
+                "metal": 1.0,
+                "pop": 0.9,
+                "reggae": 0.5,
                 "rock": 0.1
             }
         },
@@ -60,6 +96,18 @@
                 "pop": 0.375,
                 "reggae": 0.375,
                 "rock": 0.1111111111111111
+            },
+            "class_recall": {
+                "blues": 0.1,
+                "classical": 0.8,
+                "country": 0.0,
+                "disco": 0.1,
+                "hiphop": 0.3,
+                "jazz": 0.6,
+                "metal": 0.9,
+                "pop": 0.9,
+                "reggae": 0.3,
+                "rock": 0.1
             }
         },
         "135": {
@@ -75,6 +123,18 @@
                 "pop": 0.34782608695652173,
                 "reggae": 0.3333333333333333,
                 "rock": 0.2
+            },
+            "class_recall": {
+                "blues": 0.2,
+                "classical": 0.9,
+                "country": 0.3,
+                "disco": 0.2,
+                "hiphop": 0.0,
+                "jazz": 0.6,
+                "metal": 1.0,
+                "pop": 0.8,
+                "reggae": 0.5,
+                "rock": 0.1
             }
         },
         "stacked": {
@@ -90,6 +150,18 @@
                 "pop": 0.32,
                 "reggae": 0.5,
                 "rock": 0.2
+            },
+            "class_recall": {
+                "blues": 0.3,
+                "classical": 0.9,
+                "country": 0.4,
+                "disco": 0.2,
+                "hiphop": 0.3,
+                "jazz": 0.4,
+                "metal": 1.0,
+                "pop": 0.8,
+                "reggae": 0.6,
+                "rock": 0.1
             }
         }
     }
