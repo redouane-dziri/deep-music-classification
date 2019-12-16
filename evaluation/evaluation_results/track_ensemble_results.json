@@ -1,0 +1,27 @@
+{
+    "accuracy": 0.59,
+    "class_precision": {
+        "blues": 0.6,
+        "classical": 1.0,
+        "country": 0.5555555555555556,
+        "disco": 0.3333333333333333,
+        "hiphop": 0.3333333333333333,
+        "jazz": 0.6666666666666666,
+        "metal": 1.0,
+        "pop": 0.45,
+        "reggae": 0.4375,
+        "rock": 0.4
+    },
+    "class_recall": {
+        "blues": 0.6,
+        "classical": 0.9,
+        "country": 0.5,
+        "disco": 0.1,
+        "hiphop": 0.2,
+        "jazz": 0.8,
+        "metal": 1.0,
+        "pop": 0.9,
+        "reggae": 0.7,
+        "rock": 0.2
+    }
+}
